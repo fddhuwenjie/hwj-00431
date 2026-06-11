@@ -38,6 +38,18 @@ interface WrongBookItem {
   wrongCount: number
 }
 
+interface CompareItem {
+  id: string
+  name: string
+  category: string
+  categoryName: string
+  subCategory: string
+  disposalMethod: string
+  precautions: string
+  isCommonMisclassification: boolean
+  synonyms: string[]
+}
+
 interface AppState {
   currentUser: User | null
   currentCity: City
@@ -46,6 +58,7 @@ interface AppState {
   wrongBook: WrongBookItem[]
   theme: 'light' | 'dark'
   sidebarOpen: boolean
+  compareItems: CompareItem[]
 
   setUser: (user: User | null) => void
   setCity: (city: City) => void
@@ -57,6 +70,10 @@ interface AppState {
   toggleTheme: () => void
   toggleSidebar: () => void
   setSidebarOpen: (open: boolean) => void
+  addToCompare: (item: CompareItem) => void
+  removeFromCompare: (id: string) => void
+  clearCompare: () => void
+  setCompareItems: (items: CompareItem[]) => void
 }
 
 const initialQuizState: QuizState = {
@@ -76,6 +93,7 @@ export const useStore = create<AppState>((set) => ({
   wrongBook: [],
   theme: 'light',
   sidebarOpen: false,
+  compareItems: [],
 
   setUser: (user) => set({ currentUser: user }),
   setCity: (city) => set({ currentCity: city }),
@@ -109,4 +127,16 @@ export const useStore = create<AppState>((set) => ({
   toggleSidebar: () =>
     set((state) => ({ sidebarOpen: !state.sidebarOpen })),
   setSidebarOpen: (open) => set({ sidebarOpen: open }),
+  addToCompare: (item) =>
+    set((state) => {
+      if (state.compareItems.find((i) => i.id === item.id)) return state
+      if (state.compareItems.length >= 4) return state
+      return { compareItems: [...state.compareItems, item] }
+    }),
+  removeFromCompare: (id) =>
+    set((state) => ({
+      compareItems: state.compareItems.filter((i) => i.id !== id),
+    })),
+  clearCompare: () => set({ compareItems: [] }),
+  setCompareItems: (items) => set({ compareItems: items }),
 }))

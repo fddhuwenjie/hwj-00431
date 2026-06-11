@@ -9,6 +9,45 @@ export const feedbacksStore = [...initialData.feedbacks]
 export const wrongAnswersStore = [...initialData.wrongAnswers]
 export const quizScoresStore = [...initialData.quizScores]
 
+export interface ScanHistoryItem {
+  id: string
+  imageFileName: string
+  result: {
+    itemId: string
+    itemName: string
+    category: string
+    categoryName: string
+    confidence: number
+  } | null
+  timestamp: string
+}
+
+export const scanHistoryStore: ScanHistoryItem[] = []
+
+
+export interface ChallengeQuestion {
+  id: string
+  name: string
+  category: string
+  categoryName: string
+  options: string[]
+  correctOption: number
+}
+
+export interface ChallengeScore {
+  id: string
+  userId: string
+  username: string
+  date: string
+  score: number
+  correctCount: number
+  totalQuestions: number
+  timeUsed: number
+  correctRate: number
+}
+
+export const challengeScoresStore: ChallengeScore[] = []
+
 export const userWrongBook: Map<string, Array<{
   trashItemId: string
   trashItemName: string

@@ -7,10 +7,11 @@ interface CategoryBadgeProps {
   category: Category
   className?: string
   showIcon?: boolean
+  showLabel?: boolean
   cityOverride?: string
 }
 
-export default function CategoryBadge({ category, className, showIcon = false, cityOverride }: CategoryBadgeProps) {
+export default function CategoryBadge({ category, className, showIcon = false, showLabel = false, cityOverride }: CategoryBadgeProps) {
   const config = CATEGORY_CONFIG[category]
   const currentCity = useStore((s) => s.currentCity)
   const city = cityOverride ?? currentCity

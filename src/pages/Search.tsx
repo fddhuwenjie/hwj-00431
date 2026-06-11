@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Search, X, TrendingUp, AlertTriangle, Lightbulb } from 'lucide-react'
+import { Search, X, TrendingUp, AlertTriangle, Lightbulb, GitCompare, Plus, Check, Minus, ArrowRight } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { api, type TrashItem, type HotSearch, type Tip } from '@/lib/api'
 import { useStore } from '@/stores/useStore'
 import CategoryBadge from '@/components/CategoryBadge'
@@ -7,6 +8,7 @@ import ItemDetail from '@/components/ItemDetail'
 import { cn } from '@/lib/utils'
 
 export default function SearchPage() {
+  const navigate = useNavigate()
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<TrashItem[]>([])
   const [loading, setLoading] = useState(false)
@@ -14,7 +16,7 @@ export default function SearchPage() {
   const [dailyTip, setDailyTip] = useState<Tip | null>(null)
   const [selectedItem, setSelectedItem] = useState<TrashItem | null>(null)
   const [expandedId, setExpandedId] = useState<string | null>(null)
-  const { addSearchHistory, searchHistory } = useStore()
+  const { addSearchHistory, searchHistory, compareItems, addToCompare, removeFromCompare, clearCompare } = useStore()
   const debounceRef = useRef<ReturnType<typeof setTimeout>>()
 
   useEffect(() => {
@@ -143,7 +145,7 @@ export default function SearchPage() {
               onClick={() => setSelectedItem(item)}
               className="group cursor-pointer rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-gray-800"
             >
-              <div className="flex items-start justify-between">
+              <div className="flex items-start justify-between gap-3">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="font-semibold text-gray-900 dark:text-white">{item.name}</h3>
@@ -159,6 +161,45 @@ export default function SearchPage() {
                     <span className="text-gray-700 dark:text-gray-300">{item.subCategory}</span> · {item.disposalMethod}
                   </p>
                 </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    const isInCompare = compareItems.some((c) => c.id === item.id)
+                    if (isInCompare) {
+                      removeFromCompare(item.id)
+                    } else {
+                      addToCompare({
+                        id: item.id,
+                        name: item.name,
+                        category: item.category,
+                        categoryName: item.categoryName,
+                        subCategory: item.subCategory,
+                        disposalMethod: item.disposalMethod,
+                        precautions: item.precautions,
+                        isCommonMisclassification: item.isCommonMisclassification,
+                        synonyms: item.synonyms,
+                      })
+                    }
+                  }}
+                  className={cn(
+                    'flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors',
+                    compareItems.some((c) => c.id === item.id)
+                      ? 'bg-blue-600 text-white hover:bg-blue-700'
+                      : 'border border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'
+                  )}
+                >
+                  {compareItems.some((c) => c.id === item.id) ? (
+                    <>
+                      <Check size={14} />
+                      已添加
+                    </>
+                  ) : (
+                    <>
+                      <Plus size={14} />
+                      对比
+                    </>
+                  )}
+                </button>
               </div>
 
               {expandedId === item.id && (
@@ -183,6 +224,65 @@ export default function SearchPage() {
       )}
 
       {selectedItem && <ItemDetail item={selectedItem} onClose={() => setSelectedItem(null)} />}
+
+      {compareItems.length > 0 && (
+        <div className="fixed bottom-4 left-1/2 z-30 w-full max-w-2xl -translate-x-1/2 transform">
+          <div className="mx-4 rounded-2xl bg-white p-4 shadow-xl dark:bg-gray-800">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
+                  <GitCompare size={20} className="text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <div className="font-medium text-gray-900 dark:text-white">
+                    已选择 {compareItems.length} 个物品
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    {compareItems.length >= 2 ? '可以开始对比' : '请再选择 ' + (2 - compareItems.length) + ' 个'}
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={clearCompare}
+                  className="rounded-lg px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors"
+                >
+                  清空
+                </button>
+                <button
+                  onClick={() => navigate('/compare')}
+                  disabled={compareItems.length < 2}
+                  className={cn(
+                    'flex items-center gap-1 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors',
+                    compareItems.length >= 2
+                      ? 'bg-blue-600 hover:bg-blue-700'
+                      : 'bg-gray-300 cursor-not-allowed dark:bg-gray-600'
+                  )}
+                >
+                  开始对比
+                  <ArrowRight size={16} />
+                </button>
+              </div>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {compareItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1.5 text-sm text-gray-700 dark:bg-gray-700 dark:text-gray-200"
+                >
+                  <span>{item.name}</span>
+                  <button
+                    onClick={() => removeFromCompare(item.id)}
+                    className="rounded-full p-0.5 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:hover:bg-gray-600 dark:hover:text-gray-200 transition-colors"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Outlet, NavLink, useLocation } from 'react-router-dom'
 import {
-  Search, Layers, Brain, Lightbulb, Users, BarChart3,
+  Search, Layers, Brain, Lightbulb, Users, BarChart3, Camera, Zap,
   Sun, Moon, Menu, X, MapPin, ChevronDown
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -11,8 +11,10 @@ import type { Category } from '@/lib/api'
 
 const NAV_ITEMS = [
   { to: '/search', label: '搜索查询', icon: Search, category: 'recyclable' as Category },
+  { to: '/scan', label: '拍照识别', icon: Camera, category: 'recyclable' as Category },
   { to: '/browse', label: '分类浏览', icon: Layers, category: 'recyclable' as Category },
   { to: '/quiz', label: '学习测验', icon: Brain, category: 'kitchen' as Category },
+  { to: '/challenge', label: '分类挑战', icon: Zap, category: 'kitchen' as Category },
   { to: '/tips', label: 'AI建议', icon: Lightbulb, category: 'hazardous' as Category },
   { to: '/community', label: '社区贡献', icon: Users, category: 'other' as Category },
   { to: '/admin', label: '统计面板', icon: BarChart3, category: 'other' as Category },

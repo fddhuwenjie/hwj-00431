@@ -146,6 +146,65 @@ export interface UserActivity {
   contributions: number
 }
 
+export interface ScanResult {
+  recognized: boolean
+  result: (TrashItem & { confidence: number }) | null
+  historyId: string
+}
+
+export interface ScanHistoryItem {
+  id: string
+  imageFileName: string
+  result: {
+    itemId: string
+    itemName: string
+    category: string
+    categoryName: string
+    confidence: number
+  } | null
+  timestamp: string
+}
+
+export interface ChallengeQuestion {
+  id: string
+  name: string
+  category: string
+  categoryName: string
+  options: string[]
+  correctOption: number
+}
+
+export interface DailyChallenge {
+  date: string
+  questions: ChallengeQuestion[]
+  totalQuestions: number
+  timeLimit: number
+}
+
+export interface ChallengeSubmitResult {
+  score: number
+  correctCount: number
+  totalQuestions: number
+  timeUsed: number
+  correctRate: number
+  rank: number
+  totalPlayers: number
+  beatPercent: number
+}
+
+export interface ChallengeLeaderboardEntry {
+  id: string
+  userId: string
+  username: string
+  date: string
+  score: number
+  correctCount: number
+  totalQuestions: number
+  timeUsed: number
+  correctRate: number
+  rank: number
+}
+
 async function request<T>(url: string, options?: RequestInit): Promise<T> {
   const res = await fetch(url, {
     headers: { 'Content-Type': 'application/json' },
@@ -245,4 +304,22 @@ export const api = {
 
   getCategoryTranslate: (city?: string, category?: string) =>
     request<any>(`/api/city/translate?city=${city || ''}&category=${category || ''}`),
+
+  scanRecognize: (fileName: string) =>
+    request<ScanResult>('/api/scan/recognize', { method: 'POST', body: JSON.stringify({ fileName }) }),
+
+  getScanHistory: () =>
+    request<ScanHistoryItem[]>('/api/scan/history'),
+
+  getDailyChallenge: () =>
+    request<DailyChallenge>('/api/challenge/daily'),
+
+  submitChallenge: (payload: { userId: string; username: string; score: number; correctCount: number; totalQuestions: number; timeUsed: number; correctRate: number }) =>
+    request<ChallengeSubmitResult>('/api/challenge/submit', { method: 'POST', body: JSON.stringify(payload) }),
+
+  getChallengeLeaderboard: (date?: string) =>
+    request<{ date: string; leaderboard: ChallengeLeaderboardEntry[] }>(`/api/challenge/leaderboard${date ? `?date=${date}` : ''}`),
+
+  getItemsByIds: (ids: string[]) =>
+    request<TrashItem[]>(`/api/trash/batch?ids=${ids.join(',')}`),
 }

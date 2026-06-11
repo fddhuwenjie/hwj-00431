@@ -102,6 +102,19 @@ router.get('/subcategories/:category', (req: Request, res: Response): void => {
   })
 })
 
+router.get('/batch', (req: Request, res: Response): void => {
+  const idsParam = req.query.ids as string
+  if (!idsParam) {
+    res.json({ success: false, error: '缺少 ids 参数' })
+    return
+  }
+
+  const ids = idsParam.split(',')
+  const items = trashData.filter(item => ids.includes(item.id))
+
+  res.json({ success: true, data: items })
+})
+
 router.get('/:id', (req: Request, res: Response): void => {
   const { id } = req.params
   const item = trashData.find(i => i.id === id)

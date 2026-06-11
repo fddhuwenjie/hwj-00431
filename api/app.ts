@@ -14,6 +14,8 @@ import contributionRoutes from './routes/contribution.js'
 import feedbackRoutes from './routes/feedback.js'
 import adminRoutes from './routes/admin.js'
 import cityRoutes from './routes/city.js'
+import scanRoutes from './routes/scan.js'
+import challengeRoutes from './routes/challenge.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -33,6 +35,8 @@ app.use('/api/contribution', contributionRoutes)
 app.use('/api/feedback', feedbackRoutes)
 app.use('/api/admin', adminRoutes)
 app.use('/api/city', cityRoutes)
+app.use('/api/scan', scanRoutes)
+app.use('/api/challenge', challengeRoutes)
 
 app.use(
   '/api/health',
