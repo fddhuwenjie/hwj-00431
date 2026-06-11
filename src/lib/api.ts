@@ -135,7 +135,8 @@ export interface AdminStats {
   totalSearches: number
   totalQuizzes: number
   totalUsers: number
-  categoryDistribution: { category: string; count: number }[]
+  categoryDistribution: { category: string; categoryName: string; count: number }[]
+  quizAccuracy?: number
 }
 
 export interface UserActivity {

@@ -29,9 +29,9 @@ export default function AdminPage() {
     { label: '总用户数', value: stats.totalUsers, icon: Users, color: 'text-orange-600', bg: 'bg-orange-100 dark:bg-orange-900/30' },
   ] : []
 
-  const maxSearchCount = Math.max(...hotSearches.map((h) => h.searchCount), 1)
-  const maxWrongCount = Math.max(...quizStats.map((q) => q.wrongCount), 1)
-  const maxActivity = Math.max(...userActivity.map((a) => a.searches + a.quizzes + a.contributions), 1)
+  const maxSearchCount = Math.max(...(Array.isArray(hotSearches) ? hotSearches : []).map((h) => h.searchCount), 1)
+  const maxWrongCount = Math.max(...(Array.isArray(quizStats) ? quizStats : []).map((q) => q.wrongCount), 1)
+  const maxActivity = Math.max(...(Array.isArray(userActivity) ? userActivity : []).map((a) => a.searches + a.quizzes + a.contributions), 1)
 
   const catColors: Record<string, string> = {
     recyclable: 'bg-blue-500',
@@ -65,11 +65,11 @@ export default function AdminPage() {
             {stats.categoryDistribution.map((item) => {
               const maxVal = Math.max(...stats.categoryDistribution.map((d) => d.count), 1)
               const catKey = Object.keys(CATEGORY_CONFIG).find(
-                (k) => CATEGORY_CONFIG[k as keyof typeof CATEGORY_CONFIG].label === item.category
+                (k) => item.category === k || CATEGORY_CONFIG[k as keyof typeof CATEGORY_CONFIG].label === item.categoryName
               )
               return (
                 <div key={item.category} className="flex items-center gap-3">
-                  <span className="w-20 text-sm text-gray-600 dark:text-gray-400">{item.category}</span>
+                  <span className="w-20 text-sm text-gray-600 dark:text-gray-400">{item.categoryName || item.category}</span>
                   <div className="flex-1 rounded-full bg-gray-100 dark:bg-gray-700 h-6 overflow-hidden">
                     <div
                       className={cn('h-full rounded-full transition-all duration-700', catKey ? catColors[catKey] : 'bg-blue-500')}
@@ -90,7 +90,7 @@ export default function AdminPage() {
           <h3 className="font-semibold text-gray-900 dark:text-white">热门搜索 TOP 20</h3>
         </div>
         <div className="space-y-2">
-          {hotSearches.map((item, i) => (
+          {Array.isArray(hotSearches) && hotSearches.map((item, i) => (
             <div key={item.id} className="flex items-center gap-3">
               <span className={cn(
                 'flex h-6 w-6 items-center justify-center rounded text-xs font-bold',
@@ -114,7 +114,7 @@ export default function AdminPage() {
       <div className="rounded-2xl bg-white p-6 shadow-sm dark:bg-gray-800">
         <h3 className="mb-4 font-semibold text-gray-900 dark:text-white">最易答错 TOP 15</h3>
         <div className="space-y-2">
-          {quizStats.slice(0, 15).map((item, i) => (
+          {Array.isArray(quizStats) && quizStats.slice(0, 15).map((item, i) => (
             <div key={item.id} className="flex items-center gap-3">
               <span className={cn(
                 'flex h-6 w-6 items-center justify-center rounded text-xs font-bold',
@@ -141,7 +141,7 @@ export default function AdminPage() {
       <div className="rounded-2xl bg-white p-6 shadow-sm dark:bg-gray-800">
         <h3 className="mb-4 font-semibold text-gray-900 dark:text-white">用户活跃度</h3>
         <div className="space-y-2">
-          {userActivity.map((item) => {
+          {Array.isArray(userActivity) && userActivity.map((item) => {
             const total = item.searches + item.quizzes + item.contributions
             return (
               <div key={item.date} className="flex items-center gap-3">
@@ -181,7 +181,7 @@ export default function AdminPage() {
           <h3 className="font-semibold text-gray-900 dark:text-white">城市规则</h3>
         </div>
         <div className="space-y-3">
-          {cityRules.map((rule) => {
+          {Array.isArray(cityRules) && cityRules.map((rule) => {
             const isExpanded = expandedCity === rule.cityName
             return (
               <div key={rule.id} className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
