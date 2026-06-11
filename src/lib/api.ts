@@ -25,6 +25,14 @@ export interface CategoryGroup {
   items: TrashItem[]
 }
 
+export interface CategoryBrowseResult {
+  category: string
+  categoryName: string
+  subCategories: CategoryGroup[]
+  total: number
+  cityRules?: string[]
+}
+
 export interface QuizQuestion {
   id: string
   name: string
@@ -151,8 +159,10 @@ export const api = {
   search: (q: string, page = 1, limit = 20) =>
     request<SearchResult>(`/api/trash/search?q=${encodeURIComponent(q)}&page=${page}&limit=${limit}`),
 
-  getByCategory: (category: string, city?: string) =>
-    request<CategoryGroup[]>(`/api/trash/category/${category}${city ? `?city=${city}` : ''}`),
+  getByCategory: async (category: string, city?: string) => {
+    const result = await request<CategoryBrowseResult>(`/api/trash/category/${category}${city ? `?city=${city}` : ''}`)
+    return Array.isArray(result.subCategories) ? result.subCategories : []
+  },
 
   getItem: (id: string) =>
     request<TrashItem>(`/api/trash/${id}`),

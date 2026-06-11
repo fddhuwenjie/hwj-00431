@@ -65,17 +65,19 @@ router.get('/category/:category', (req: Request, res: Response): void => {
     if (rule) cityRules = rule.specialRules
   }
 
+  const subCategories = Object.entries(grouped || {}).map(([subCategory, subItems]) => ({
+    subCategory,
+    items: subItems || []
+  }))
+
   res.json({
     success: true,
     data: {
       category,
       categoryName,
-      subCategories: Object.entries(grouped).map(([subCategory, subItems]) => ({
-        subCategory,
-        items: subItems
-      })),
+      subCategories,
       total: items.length,
-      cityRules
+      cityRules: cityRules || []
     }
   })
 })
